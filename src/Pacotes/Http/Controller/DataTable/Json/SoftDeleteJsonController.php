@@ -4,10 +4,6 @@ namespace Manzoli2122\Pacotes\Http\Controller\DataTable\Json;
 use Illuminate\Http\Request;
 use Manzoli2122\Pacotes\ErrosSQL;
 use DataTables;
-use ChannelLog as Log;
-
-
-
 
 class SoftDeleteJsonController extends Controller
 {
@@ -17,23 +13,34 @@ class SoftDeleteJsonController extends Controller
     protected $route;
     protected $name ;
     protected $model;
-    protected $logCannel = 'audit' ;
-
+    
 
     public function show($id)
-    {
-        $model = $this->model->find($id);
-        if($model){
-            return view("{$this->view}.show", compact('model'));
+    {       
+        $erro = false;   
+        try {
+            $msg = '';
+            if(!$model = $this->model->find($id)){
+                $erro = true;
+                $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
+            } 
+
+        } catch(\Illuminate\Database\QueryException $e) {
+            $erro = true;
+            $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
+                __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
+                __('msg.erro_bd');
         }
-        return redirect()->route("{$this->route}.index")->withErrors(['message' => __('msg.erro_nao_encontrado', ['1' => $this->name ])]);
+
+        return response()->json(['erro' => $erro , 'msg' => $msg , 'data' => $model ], 200);
+  
     }
 
 
 
 
 
-    
+
     public function destroy($id)
     {
         try {
@@ -58,6 +65,10 @@ class SoftDeleteJsonController extends Controller
 
     public function index()
     {
+        $models = $this->model->all();
+        return response()->json(['data' => $models ]);
+
+
         return view("{$this->view}.index");
     }
 
