@@ -25,26 +25,27 @@ class SoftDeleteJsonController extends BaseController
     public function show($id)
     {       
         $erro = false;   
-        try {
-            $msg = '';
-            if(!$model = $this->model->findModelJson($id)){
-                $model = null;
-                $erro = true;
+        try {            
+            if(!$model = $this->findModelJson($id) ){
                 $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
+                return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
             } 
-
         } catch(\Illuminate\Database\QueryException $e) {
-            $model = null;
-            $erro = true;
             $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
                 __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
                 __('msg.erro_bd');
+            return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
         }
-
-        return response()->json(['erro' => $erro , 'msg' => $msg , 'data' => $model ], 200);
+        return response()->json(['erro' => $erro , 'msg' => '' , 'data' => $model ], 200);
   
     }
 
+
+
+    protected function findModelJson($id)
+    { 
+        return $this->model->find($id);
+    }
 
 
 
@@ -67,6 +68,29 @@ class SoftDeleteJsonController extends BaseController
     }
 
 
+    public function destroySoft($id)
+    {
+        try {            
+            $model = $this->model->find($id);
+            $delete = $model->delete();                   
+            $msg = __('msg.sucesso_excluido', ['1' => $this->name ]);
+        } 
+        catch(\Illuminate\Database\QueryException $e) 
+        {
+            $erro = true;
+            $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
+                __('msg.erro_exclusao_fk', ['1' => $this->name , '2' => 'Model']):
+                __('msg.erro_bd');
+        }
+        return response()->json(['erro' => isset($erro), 'msg' => $msg], 200);
+
+    }
+
+
+
+
+
+
 
 
 
@@ -74,10 +98,8 @@ class SoftDeleteJsonController extends BaseController
 
     public function index()
     {
-        $models = $this->model->all();
-        return response()->json(['data' => $models ]);
-
-
+        //$models = $this->model->all();
+        //return response()->json(['data' => $models ]);
         return view("{$this->view}.index");
     }
 
@@ -134,23 +156,7 @@ class SoftDeleteJsonController extends BaseController
     }
 
 
-    public function destroySoft($id)
-    {
-        try {            
-            $model = $this->model->find($id);
-            $delete = $model->delete();                   
-            $msg = __('msg.sucesso_excluido', ['1' => $this->name ]);
-        } 
-        catch(\Illuminate\Database\QueryException $e) 
-        {
-            $erro = true;
-            $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
-                __('msg.erro_exclusao_fk', ['1' => $this->name , '2' => 'Model']):
-                __('msg.erro_bd');
-        }
-        return response()->json(['erro' => isset($erro), 'msg' => $msg], 200);
-
-    }
+    
 
 
 
