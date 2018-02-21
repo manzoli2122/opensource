@@ -172,9 +172,9 @@ class SoftDeleteJsonController extends BaseController
         $models = $this->model->getDatatable();
         return Datatables::of($models)
             ->addColumn('action', function($linha) {
-                return '<button data-id="'.$linha->id.'" btn-excluir type="button" class="btn btn-danger btn-xs" title="Excluir"> <i class="fa fa-times"></i> </button> '
+                return '<button data-id="'.$linha->id.'" btn-excluir type="button" class="btn btn-danger btn-xs" title="Excluir" > <i class="fa fa-times"></i> </button> '
                     . '<a href="'.route("{$this->route}.edit", $linha->id).'" class="btn btn-warning btn-xs" style="margin-left: 10px;" title="Editar"> <i class="fa fa-pencil"></i> </a> '
-                    . '<a href="'.route("{$this->route}.show", $linha->id).'" class="btn btn-primary btn-xs" style="margin-left: 10px;" title="Visualizar"> <i class="fa fa-search"></i> </a>';
+                    . '<a href="'.route("{$this->route}.show", $linha->id).'" class="btn btn-primary btn-xs" style="margin-left: 10px;" title="Visualizar" id="btnShow" > <i class="fa fa-search"></i> </a>';
             })->make(true);
     }
 
