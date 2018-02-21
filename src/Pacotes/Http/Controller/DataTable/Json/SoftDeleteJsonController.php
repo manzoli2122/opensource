@@ -1,12 +1,19 @@
 <?php
 namespace Manzoli2122\Pacotes\Http\Controller\DataTable\Json;
 
+
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 use Illuminate\Http\Request;
 use Manzoli2122\Pacotes\ErrosSQL;
 use DataTables;
 
-class SoftDeleteJsonController extends Controller
+class SoftDeleteJsonController extends BaseController
 {
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     protected $view_apagados;
     protected $view;
