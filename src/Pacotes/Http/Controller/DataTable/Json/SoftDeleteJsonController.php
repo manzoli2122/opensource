@@ -27,7 +27,7 @@ class SoftDeleteJsonController extends BaseController
         $erro = false;   
         try {
             $msg = '';
-            if(!$model = $this->model->find($id)){
+            if(!$model = $this->model->findModelJson($id)){
                 $model = null;
                 $erro = true;
                 $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
