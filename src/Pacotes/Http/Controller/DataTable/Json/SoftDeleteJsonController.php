@@ -8,7 +8,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 use Illuminate\Http\Request;
-use Manzoli2122\Pacotes\ErrosSQL;
+use Manzoli2122\Pacotes\Constants\ErrosSQL;
 use DataTables;
 
 class SoftDeleteJsonController extends BaseController
@@ -28,11 +28,13 @@ class SoftDeleteJsonController extends BaseController
         try {
             $msg = '';
             if(!$model = $this->model->find($id)){
+                $model = null;
                 $erro = true;
                 $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
             } 
 
         } catch(\Illuminate\Database\QueryException $e) {
+            $model = null;
             $erro = true;
             $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
                 __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
