@@ -24,6 +24,7 @@ class SoftDeleteJsonController extends BaseController
 
     public function show($id)
     {       
+        sleep(5);
         $erro = false;   
         try {            
             if(!$model = $this->findModelJson($id) ){
