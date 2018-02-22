@@ -174,7 +174,7 @@ class SoftDeleteJsonController extends BaseController
             ->addColumn('action', function($linha) {
                 return '<button data-id="'.$linha->id.'" btn-excluir type="button" class="btn btn-danger btn-xs" title="Excluir" > <i class="fa fa-times"></i> </button> '
                     . '<a href="'.route("{$this->route}.edit", $linha->id).'" class="btn btn-warning btn-xs" style="margin-left: 10px;" title="Editar"> <i class="fa fa-pencil"></i> </a> '
-                    . '<button type="button" class="btn btn-danger" btn-show remover-apos-excluir><i class="fa fa-search"></i> Visualizar</button>' ;
+                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-danger" btn-show remover-apos-excluir><i class="fa fa-search"></i> Visualizar</button>' ;
             })->make(true);
     }
 
