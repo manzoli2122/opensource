@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Manzoli2122\Pacotes\Constants\ErrosSQL;
 use DataTables;
+use View;
 
 class SoftDeleteJsonController extends BaseController
 {
@@ -130,18 +131,62 @@ class SoftDeleteJsonController extends BaseController
 
     public function edit($id)
     {
+        
         $model = $this->model->find($id);
         if($model){
-            return view("{$this->view}.edit", compact('model'));
+            $html = (string) View::make("{$this->view}.edit", compact("model"));            
+            return response()->json(['erro' => false , 'msg' =>'oi' , 'data' => $html   ], 200);
+            //return view("{$this->view}.edit", compact('model'));
         }
-        return redirect()->route("{$this->route}.index")->withErrors(['message' => __('msg.erro_nao_encontrado', ['1' => $this->name ])]);
+
+        return response()->json(['erro' => false , 'msg' =>'' , 'data' => view("{$this->view}.edit", compact('model')) ], 200);
+
+       // return redirect()->route("{$this->route}.index")->withErrors(['message' => __('msg.erro_nao_encontrado', ['1' => $this->name ])]);
     }
 
 
-    public function update( Request $request, $id)
+
+
+
+
+
+
+    public function update( Request $request ,  $id )
     {
-        $this->validate($request , $this->model->rules($id));        
-        $dataForm = $request->all();                      
+
+        //$this->validate($request , $this->model->rules());
+
+
+        $dataForm = $request->all(); 
+
+        $validate = validator( $dataForm , $this->model->rules($id) );
+        
+        if( !$model = $this->model->find($id) ){
+            return response()->json(['erro' => true , 'msg' => $id  , 'data' => null ], 200);
+        }
+
+        if($validate->fails()){
+
+            $errors = $validate->messages() ;
+            $html = (string) View::make("{$this->view}.edit", compact("model", "errors" , "request")) ;
+
+
+            $mensagens = $validate->messages();
+            return response()->json(['erro' => true , 'msg' => $mensagens , 'data' => $html ], 200);
+        }
+
+            
+        if( !$model = $this->model->find($id) ){
+            return response()->json(['erro' => true , 'msg' => $this->name . ' não encontrado no Sistema' , 'data' => null ], 200);
+        }
+        if( !$update = $model->update($dataForm) ){
+            return response()->json(['erro' => true , 'msg' => $this->name . ' não alterado no sistema' , 'data' => null ], 200 );
+        }
+        
+        return response()->json(['erro' => false , 'msg' => $this->name . ' alterado no sistema' , 'data' =>  $update ], 200 );
+
+        /*
+                             
         $model = $this->model->find($id); 
         if(!$model){
             return redirect()->route("{$this->route}.index")->withErrors(['message' => __('msg.erro_nao_encontrado', ['1' => $this->name ])]);
@@ -154,6 +199,9 @@ class SoftDeleteJsonController extends BaseController
         else {
             return redirect()->route("{$this->route}.edit" , ['id'=> $id])->withErrors(['errors' =>'Erro no Editar'])->withInput();
         }
+        */
+
+
     }
 
 
@@ -174,8 +222,12 @@ class SoftDeleteJsonController extends BaseController
         return Datatables::of($models)
             ->addColumn('action', function($linha) {
                 return '<button data-id="'.$linha->id.'" btn-excluir type="button" class="btn btn-danger btn-xs" title="Excluir" > <i class="fa fa-times"></i> </button> '
+                    
                     . '<a href="'.route("{$this->route}.edit", $linha->id).'" class="btn btn-warning btn-xs" style="margin-left: 10px;" title="Editar"> <i class="fa fa-pencil"></i> </a> '
-                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-primary btn-xs" style="margin-left: 10px;" btn-show remover-apos-excluir><i class="fa fa-search"></i></button>' ;
+                    
+                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-success btn-xs" style="margin-left: 10px;" btn-editar ><i class="fa fa-pencil"></i></button>'
+
+                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-primary btn-xs" style="margin-left: 10px;" btn-show ><i class="fa fa-search"></i></button>' ;
             })->make(true);
     }
 
