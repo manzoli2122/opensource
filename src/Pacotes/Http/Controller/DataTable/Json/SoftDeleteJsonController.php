@@ -25,7 +25,14 @@ class SoftDeleteJsonController extends BaseController
 
     public function show($id)
     {       
-        
+        $model = $this->model->find($id);
+        if($model){
+            $html = (string) View::make("{$this->view}.show", compact("model"));            
+            return response()->json(['erro' => false , 'msg' =>'oi' , 'data' => $html   ], 200);
+            //return view("{$this->view}.edit", compact('model'));
+        }
+
+
         $erro = false;   
         try {            
             if(!$model = $this->findModelJson($id) ){
@@ -56,8 +63,8 @@ class SoftDeleteJsonController extends BaseController
     public function destroy($id)
     {
         try {
-            $model = $this->model->withTrashed()->find($id);  
-            $delete = $model->forceDelete();        
+            $model = $this->model->find($id);  
+            $delete = $model->delete();        
             $msg = __('msg.sucesso_excluido', ['1' =>  $this->name ]);
 
         } catch(\Illuminate\Database\QueryException $e) {
@@ -70,10 +77,18 @@ class SoftDeleteJsonController extends BaseController
     }
 
 
+
+
+
+
+
+
+
+
     public function destroySoft($id)
     {
         try {            
-            $model = $this->model->find($id);
+            $model = $this->model->withTrashed()->find($id);
             $delete = $model->delete();                   
             $msg = __('msg.sucesso_excluido', ['1' => $this->name ]);
         } 
@@ -100,10 +115,15 @@ class SoftDeleteJsonController extends BaseController
 
     public function index()
     {
-        //$models = $this->model->all();
-        //return response()->json(['data' => $models ]);
-        return view("{$this->view}.index");
+        $dataTable = (string) View::make("{$this->view}.dataTable");
+        //dd( $dataTable);
+        return view("{$this->view}.index" , compact('dataTable') );
     }
+
+
+
+
+
 
 
     public function create()
@@ -223,7 +243,6 @@ class SoftDeleteJsonController extends BaseController
             ->addColumn('action', function($linha) {
                 return '<button data-id="'.$linha->id.'" btn-excluir type="button" class="btn btn-danger btn-xs" title="Excluir" > <i class="fa fa-times"></i> </button> '
                     
-                    . '<a href="'.route("{$this->route}.edit", $linha->id).'" class="btn btn-warning btn-xs" style="margin-left: 10px;" title="Editar"> <i class="fa fa-pencil"></i> </a> '
                     
                     . '<button data-id="'.$linha->id.'" type="button" class="btn btn-success btn-xs" style="margin-left: 10px;" btn-editar ><i class="fa fa-pencil"></i></button>'
 

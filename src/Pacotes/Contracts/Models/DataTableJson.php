@@ -12,5 +12,9 @@ interface DataTableJson
 
     
 
+    public function getDatatable( );
+
+
+    public function rules( $id = '' );
 
 }
