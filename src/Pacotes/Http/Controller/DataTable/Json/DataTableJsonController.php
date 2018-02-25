@@ -77,7 +77,6 @@ class DataTableJsonController extends BaseController
 
 
 
-
     
     public function edit($id){        
         try {            
@@ -87,7 +86,7 @@ class DataTableJsonController extends BaseController
             } 
             else{
                 $html = (string) View::make("{$this->view}.edit", compact("model"));            
-                return response()->json(['erro' => false , 'msg' =>'oi' , 'data' => $html   ], 200);  
+                return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
             }
         } catch(\Illuminate\Database\QueryException $e) {
             $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
@@ -105,80 +104,9 @@ class DataTableJsonController extends BaseController
 
 
 
-    public function destroy($id)
-    {
-        try {
-            $model = $this->model->find($id);  
-            $delete = $model->delete();        
-            $msg = __('msg.sucesso_excluido', ['1' =>  $this->name ]);
-
-        } catch(\Illuminate\Database\QueryException $e) {
-            $erro = true;
-            $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
-                __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
-                __('msg.erro_bd');
-        }
-        return response()->json(['erro' => isset($erro), 'msg' => $msg], 200);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public function create()
-    {
-        return view("{$this->view}.create");
-    }
-
-  
-    public function store(Request $request)
-    {
-        $this->validate($request , $this->model->rules());
-        $dataForm = $request->all();              
-        $insert = $this->model->create($dataForm);           
-        if($insert){           
-            return redirect()->route("{$this->route}.index")->with('success', __('msg.sucesso_adicionado', ['1' => $this->name ]));
-        }
-        else {
-            return redirect()->route("{$this->route}.create")->withErrors(['message' => __('msg.erro_nao_store', ['1' => $this->name  ])]);
-        }
-    }
-
-
-    
-
-
-
-
-
-
-
-
-
-
-    public function update( Request $request ,  $id )
-    {
-
-        //$this->validate($request , $this->model->rules());
-
-
+    public function update( Request $request ,  $id ){
+        
         $dataForm = $request->all(); 
-
         $validate = validator( $dataForm , $this->model->rules($id) );
         
         if( !$model = $this->model->find($id) ){
@@ -205,32 +133,69 @@ class DataTableJsonController extends BaseController
         
         return response()->json(['erro' => false , 'msg' => $this->name . ' alterado no sistema' , 'data' =>  $update ], 200 );
 
-        /*
-                             
-        $model = $this->model->find($id); 
-        if(!$model){
-            return redirect()->route("{$this->route}.index")->withErrors(['message' => __('msg.erro_nao_encontrado', ['1' => $this->name ])]);
-        }       
-        $update = $model->update($dataForm);     
-        
-        if($update){
-            return redirect()->route("{$this->route}.index")->with('success', __('msg.sucesso_alterado', ['1' => $this->name ]));
-        }        
-        else {
-            return redirect()->route("{$this->route}.edit" , ['id'=> $id])->withErrors(['errors' =>'Erro no Editar'])->withInput();
-        }
-        */
-
-
     }
+
+
+
+
+
+
+
+
+    public function create()
+    {
+        $html = (string) View::make( "{$this->view}.create" );            
+        return response()->json(['erro' => false , 'msg' =>'' , 'data' => $html   ], 200);
+    }
+
 
 
     
 
+  
+    public function store(Request $request)
+    {
+        $dataForm = $request->all();
+        $validate = validator( $dataForm , $this->model->rules() );
+
+        if($validate->fails()){
+            $errors = $validate->messages() ;
+            $html = (string) View::make("{$this->view}.create", compact( "errors" , "request")) ;
+            $mensagens = $validate->messages();
+            return response()->json(['erro' => true , 'msg' => $mensagens , 'data' => $html ], 200);
+        }
+
+        if( !$insert = $this->model->create($dataForm) ){
+            return response()->json(['erro' => true , 'msg' => $this->name . ' não adicionado ao sistema' , 'data' => null ], 200 );
+        }
+
+        return response()->json(['erro' => false , 'msg' => $this->name . ' adicionado o sistema' , 'data' =>  $insert ], 200 );
+
+    }
 
 
 
-      
+
+
+
+
+
+    public function destroy($id)
+    {
+        try {
+            $model = $this->model->find($id);  
+            $delete = $model->delete();        
+            $msg = __('msg.sucesso_excluido', ['1' =>  $this->name ]);
+
+        } catch(\Illuminate\Database\QueryException $e) {
+            $erro = true;
+            $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
+                __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
+                __('msg.erro_bd');
+        }
+        return response()->json(['erro' => isset($erro), 'msg' => $msg], 200);
+    }
+
 
 
 
