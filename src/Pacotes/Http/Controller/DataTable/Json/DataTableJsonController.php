@@ -39,8 +39,8 @@ class DataTableJsonController extends BaseController
         return Datatables::of($models)
             ->addColumn('action', function($linha) {
                 return '<button data-id="'.$linha->id.'" btn-excluir type="button" class="btn btn-danger btn-xs btn-datatable" title="Excluir" > <i class="fa fa-times"></i> </button> '
-                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-success btn-xs btn-datatable" style="margin-left: 10px;" btn-editar ><i class="fa fa-pencil"></i></button>'
-                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-primary btn-xs btn-datatable" style="margin-left: 10px;" btn-show ><i class="fa fa-search"></i></button>' ;
+                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-success btn-xs btn-datatable" style="margin-left: 10px;" btn-editar title="Editar" ><i class="fa fa-pencil"></i></button>'
+                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-primary btn-xs btn-datatable" style="margin-left: 10px;" btn-show title="Visualizar"><i class="fa fa-search"></i></button>' ;
             })->make(true);
     }
 

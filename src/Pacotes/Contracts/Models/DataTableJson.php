@@ -17,4 +17,7 @@ interface DataTableJson
 
     public function rules( $id = '' );
 
+
+    public function findModelSoftDeleteJson($id);
+
 }
