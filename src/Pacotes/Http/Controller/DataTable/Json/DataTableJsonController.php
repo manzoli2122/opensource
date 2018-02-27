@@ -5,11 +5,10 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
 use Illuminate\Http\Request;
-use Manzoli2122\Pacotes\Constants\ErrosSQL;
 use DataTables;
 use View;
+use Manzoli2122\Pacotes\Constants\ErrosSQL;
 
 class DataTableJsonController extends BaseController
 {
@@ -22,8 +21,9 @@ class DataTableJsonController extends BaseController
 
 
     public function index(){
-        $dataTable = (string) View::make("{$this->view}.dataTable");
-        return view("{$this->view}.index" , compact('dataTable') );
+        //$dataTable = (string) View::make("{$this->view}.dataTable");
+        //return view("{$this->view}.index" , compact('dataTable') );
+        return view("{$this->view}.index" );
     }
 
 
