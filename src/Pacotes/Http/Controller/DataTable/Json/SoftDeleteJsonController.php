@@ -5,26 +5,22 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
-use Illuminate\Http\Request;
-use Manzoli2122\Pacotes\Constants\ErrosSQL;
 use DataTables;
 use View;
+use Manzoli2122\Pacotes\Constants\ErrosSQL;
 
 class SoftDeleteJsonController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-   
     protected $view;
     protected $route;
     protected $name ;
     protected $model;
     
 
-    public function index(){
-        $dataTable = (string) View::make("{$this->view}.dataTable");
-        return view("{$this->view}.index" , compact('dataTable') );
+    public function index(){        
+        return view("{$this->view}.index"  );
     }
 
 

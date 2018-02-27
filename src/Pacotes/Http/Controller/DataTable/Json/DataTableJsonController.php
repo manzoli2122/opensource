@@ -144,7 +144,8 @@ class DataTableJsonController extends BaseController
 
     public function create()
     {
-        $html = (string) View::make( "{$this->view}.create" );            
+        $model = $this->model->replicate();
+        $html = (string) View::make( "{$this->view}.create" , compact("model") );            
         return response()->json(['erro' => false , 'msg' =>'' , 'data' => $html   ], 200);
     }
 
