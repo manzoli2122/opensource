@@ -54,12 +54,15 @@ class SoftDeleteJsonController extends BaseController
 
     public function show($id)
     {    
+        
         try {            
             if(!$model = $this->model->findModelSoftDeleteJson($id) ){
+                
                 $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
                 return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
             } 
             else{
+                
                 $html = (string) View::make("{$this->view}.show", compact("model"));            
                 return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
             }
@@ -73,18 +76,6 @@ class SoftDeleteJsonController extends BaseController
 
 
     
-    public function showApagado($id)
-    {
-        $model = $this->model->onlyTrashed()->find($id);
-        if($model){
-            return view("{$this->view_apagados}.show", compact('model'));
-        }
-        return redirect()->route("{$this->route}.apagados")->withErrors(['message' => __('msg.erro_nao_encontrado', ['1' => $this->name ])]);
-    }
-
-
-
-
 
 
     
@@ -114,17 +105,26 @@ class SoftDeleteJsonController extends BaseController
 
     public function restore($id)
     {
-        $model = $this->model->withTrashed()->find($id);
-        if(!$model){
-            return redirect()->route("{$this->route}.apagados")->withErrors(['message' => __('msg.erro_nao_encontrado', ['1' => $this->name ])]);
-        }   
-        $restore = $model->restore();
-        if($restore){
-            return redirect()->route("{$this->route}.index")->with(['success' => 'Item restaurado com sucesso']);
+        try {
+            
+            if( !$model = $this->model->findModelSoftDeleteJson($id) ){
+                $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
+                return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
+            } 
+            
+            if( !$restore = $model->restore() ){
+                return response()->json(['erro' => true , 'msg' => 'Não foi possível restaurar o item.'  , 'data' => null ], 200);
+            }
+
+            return response()->json(['erro' => false, 'msg' => 'Item restaurado com sucesso.' , 'data' => null  ], 200);
+
+        } catch(\Illuminate\Database\QueryException $e) {
+            $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
+                __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
+                __('msg.erro_bd');
+            return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
         }
-        else{
-            return  redirect()->route("{$this->route}.showapagado",['id' => $id])->withErrors(['errors' => 'Falha ao Deletar']);
-        }
+    
     }
 
 
