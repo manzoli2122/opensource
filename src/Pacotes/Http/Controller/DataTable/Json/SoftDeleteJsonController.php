@@ -36,9 +36,9 @@ class SoftDeleteJsonController extends BaseController
         $models = $this->model->getDatatableApagados();
         return Datatables::of($models)
             ->addColumn('action', function($linha) {
-                return '<button data-id="'.$linha->id.'" btn-excluir type="button" class="btn btn-danger btn-xs btn-datatable" title="Excluir" > <i class="fa fa-times"></i> </button> '
-                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-success btn-xs btn-datatable" style="margin-left: 10px;" btn-restaurar title="Restaurar" ><i class="fa fa-arrow-circle-up"></i></button>'
-                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-primary btn-xs btn-datatable" style="margin-left: 10px;" btn-show  title="Visualizar" ><i class="fa fa-search"></i></button>' ;
+                return '<button data-id="'.$linha->id.'" type="button" btn-excluir   class="btn btn-danger  btn-xs btn-datatable" title="Excluir" >                             <i class="fa fa-times">          </i></button> '
+                     . '<button data-id="'.$linha->id.'" type="button" btn-restaurar class="btn btn-success btn-xs btn-datatable" title="Restaurar"  style="margin-left: 10px;"><i class="fa fa-arrow-circle-up"></i></button>'
+                     . '<button data-id="'.$linha->id.'" type="button" btn-show      class="btn btn-primary btn-xs btn-datatable" title="Visualizar" style="margin-left: 10px;"><i class="fa fa-search">         </i></button>' ;
             })->make(true);
     }
 
@@ -48,20 +48,16 @@ class SoftDeleteJsonController extends BaseController
 
 
 
-    public function show($id)
-    {    
-        
+    public function show($id){    
         try {            
-            if(!$model = $this->model->findModelSoftDeleteJson($id) ){
-                
+            if(!$model = $this->model->findModelSoftDeleteJson($id) ){                
                 $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
                 return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
             } 
-            else{
-                
-                $html = (string) View::make("{$this->view}.show", compact("model"));            
-                return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
-            }
+                           
+            $html = (string) View::make("{$this->view}.show", compact("model"));            
+            return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
+            
         } catch(\Illuminate\Database\QueryException $e) {
             $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
                 __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
@@ -77,7 +73,10 @@ class SoftDeleteJsonController extends BaseController
     
     public function destroy($id){
         try {
-            $model = $this->model->withTrashed()->find($id);
+            if(!$model = $this->model->findModelSoftDeleteJson($id) ){                
+                $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
+                return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
+            }             
             $delete = $model->forceDelete();        
             $msg = __('msg.sucesso_excluido', ['1' =>  $this->name ]);
 
@@ -87,7 +86,7 @@ class SoftDeleteJsonController extends BaseController
                 __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
                 __('msg.erro_bd');
         }
-        return response()->json(['erro' => isset($erro), 'msg' => $msg], 200);
+        return response()->json(['erro' => isset($erro), 'msg' => $msg , 'data' => null], 200);
     }
 
 
@@ -99,10 +98,8 @@ class SoftDeleteJsonController extends BaseController
 
 
 
-    public function restore($id)
-    {
-        try {
-            
+    public function restore($id){
+        try {            
             if( !$model = $this->model->findModelSoftDeleteJson($id) ){
                 $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
                 return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
