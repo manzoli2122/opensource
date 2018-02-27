@@ -21,8 +21,6 @@ class DataTableJsonController extends BaseController
 
 
     public function index(){
-        //$dataTable = (string) View::make("{$this->view}.dataTable");
-        //return view("{$this->view}.index" , compact('dataTable') );
         return view("{$this->view}.index" );
     }
 
@@ -38,9 +36,9 @@ class DataTableJsonController extends BaseController
         $models = $this->model->getDatatable();
         return Datatables::of($models)
             ->addColumn('action', function($linha) {
-                return '<button data-id="'.$linha->id.'" btn-excluir type="button" class="btn btn-danger btn-xs btn-datatable" title="Excluir" > <i class="fa fa-times"></i> </button> '
-                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-success btn-xs btn-datatable" style="margin-left: 10px;" btn-editar title="Editar" ><i class="fa fa-pencil"></i></button>'
-                    . '<button data-id="'.$linha->id.'" type="button" class="btn btn-primary btn-xs btn-datatable" style="margin-left: 10px;" btn-show title="Visualizar"><i class="fa fa-search"></i></button>' ;
+                return '<button data-id="'.$linha->id.'" type="button" class="btn btn-danger  btn-xs btn-datatable" btn-excluir title="Excluir">                               <i class="fa fa-times"> </i> </button> '
+                     . '<button data-id="'.$linha->id.'" type="button" class="btn btn-success btn-xs btn-datatable" btn-editar  title="Editar"     style="margin-left: 10px;"> <i class="fa fa-pencil"></i> </button>'
+                     . '<button data-id="'.$linha->id.'" type="button" class="btn btn-primary btn-xs btn-datatable" btn-show    title="Visualizar" style="margin-left: 10px;"> <i class="fa fa-search"></i> </button>' ;
             })->make(true);
     }
 
@@ -51,17 +49,16 @@ class DataTableJsonController extends BaseController
 
 
 
-    public function show($id)
-    {    
+    public function show($id){    
         try {            
             if(!$model = $this->model->findModelJson($id) ){
                 $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
                 return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
             } 
-            else{
-                $html = (string) View::make("{$this->view}.show", compact("model"));            
-                return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
-            }
+            
+            $html = (string) View::make("{$this->view}.show", compact("model"));            
+            return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
+           
         } catch(\Illuminate\Database\QueryException $e) {
             $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
                 __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
@@ -84,10 +81,10 @@ class DataTableJsonController extends BaseController
                 $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
                 return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
             } 
-            else{
-                $html = (string) View::make("{$this->view}.edit", compact("model"));            
-                return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
-            }
+            
+            $html = (string) View::make("{$this->view}.edit", compact("model"));            
+            return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
+            
         } catch(\Illuminate\Database\QueryException $e) {
             $msg = $e->errorInfo[1] == ErrosSQL::DELETE_OR_UPDATE_A_PARENT_ROW ? 
                 __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
@@ -109,8 +106,8 @@ class DataTableJsonController extends BaseController
         $dataForm = $request->all(); 
         $validate = validator( $dataForm , $this->model->rules($id) );
         
-        if( !$model = $this->model->find($id) ){
-            return response()->json(['erro' => true , 'msg' => $id  , 'data' => null ], 200);
+        if( !$model = $this->model->findModelJson($id) ){
+            return response()->json(['erro' => true , 'msg' => $this->name . ' não encontrado no Sistema'  , 'data' => null ], 200);
         }
 
         if($validate->fails()){
@@ -118,15 +115,11 @@ class DataTableJsonController extends BaseController
             $errors = $validate->messages() ;
             $html = (string) View::make("{$this->view}.edit", compact("model", "errors" , "request")) ;
 
-
             $mensagens = $validate->messages();
             return response()->json(['erro' => true , 'msg' => $mensagens , 'data' => $html ], 200);
         }
 
-            
-        if( !$model = $this->model->find($id) ){
-            return response()->json(['erro' => true , 'msg' => $this->name . ' não encontrado no Sistema' , 'data' => null ], 200);
-        }
+        
         if( !$update = $model->update($dataForm) ){
             return response()->json(['erro' => true , 'msg' => $this->name . ' não alterado no sistema' , 'data' => null ], 200 );
         }
@@ -184,7 +177,10 @@ class DataTableJsonController extends BaseController
     public function destroy($id)
     {
         try {
-            $model = $this->model->find($id);  
+            if(!$model = $this->model->findModelJson($id) ){
+                $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
+                return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
+            }              
             $delete = $model->delete();        
             $msg = __('msg.sucesso_excluido', ['1' =>  $this->name ]);
 
