@@ -57,6 +57,10 @@ class DataTableJsonController extends BaseController
             } 
             
             $html = (string) View::make("{$this->view}.show", compact("model"));            
+            $html =  preg_replace( '/\r/' , '', $html)  ; 
+            $html =  preg_replace( '/\n/' , '', $html)  ;
+            $html =  preg_replace( '/\t/' , '', $html)  ;  
+            $html =  preg_replace( '/(>)(\s+)(<)/' , '\1\3', $html)  ; 
             return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
            
         } catch(\Illuminate\Database\QueryException $e) {
@@ -82,7 +86,11 @@ class DataTableJsonController extends BaseController
                 return response()->json(['erro' => true , 'msg' => $msg , 'data' => null ], 200);
             } 
             
-            $html = (string) View::make("{$this->view}.edit", compact("model"));            
+            $html = (string) View::make("{$this->view}.edit", compact("model"));             
+            $html =  preg_replace( '/\r/' , '', $html)  ; 
+            $html =  preg_replace( '/\n/' , '', $html)  ;
+            $html =  preg_replace( '/\t/' , '', $html)  ;  
+            $html =  preg_replace( '/(>)(\s+)(<)/' , '\1\3', $html)  ; 
             return response()->json(['erro' => false , 'msg' =>'Item encontrado com sucesso.' , 'data' => $html   ], 200);  
             
         } catch(\Illuminate\Database\QueryException $e) {
@@ -114,7 +122,10 @@ class DataTableJsonController extends BaseController
 
             $errors = $validate->messages() ;
             $html = (string) View::make("{$this->view}.edit", compact("model", "errors" , "request")) ;
-
+            $html =  preg_replace( '/\r/' , '', $html)  ; 
+            $html =  preg_replace( '/\n/' , '', $html)  ;
+            $html =  preg_replace( '/\t/' , '', $html)  ;  
+            $html =  preg_replace( '/(>)(\s+)(<)/' , '\1\3', $html)  ; 
             $mensagens = $validate->messages();
             return response()->json(['erro' => true , 'msg' => $mensagens , 'data' => $html ], 200);
         }
@@ -138,7 +149,11 @@ class DataTableJsonController extends BaseController
     public function create()
     {
         $model = $this->model->replicate();
-        $html = (string) View::make( "{$this->view}.create" , compact("model") );            
+        $html = (string) View::make( "{$this->view}.create" , compact("model") ); 
+        $html =  preg_replace( '/\r/' , '', $html)  ; 
+        $html =  preg_replace( '/\n/' , '', $html)  ;
+        $html =  preg_replace( '/\t/' , '', $html)  ;  
+        $html =  preg_replace( '/(>)(\s+)(<)/' , '\1\3', $html)  ;            
         return response()->json(['erro' => false , 'msg' =>'' , 'data' => $html   ], 200);
     }
 
@@ -154,7 +169,12 @@ class DataTableJsonController extends BaseController
 
         if($validate->fails()){
             $errors = $validate->messages() ;
-            $html = (string) View::make("{$this->view}.create", compact( "errors" , "request")) ;
+            $model = $this->model->replicate();
+            $html = (string) View::make("{$this->view}.create", compact( "model" , "errors" , "request")) ;
+            $html =  preg_replace( '/\r/' , '', $html)  ; 
+            $html =  preg_replace( '/\n/' , '', $html)  ;
+            $html =  preg_replace( '/\t/' , '', $html)  ;  
+            $html =  preg_replace( '/(>)(\s+)(<)/' , '\1\3', $html)  ; 
             $mensagens = $validate->messages();
             return response()->json(['erro' => true , 'msg' => $mensagens , 'data' => $html ], 200);
         }
@@ -190,7 +210,7 @@ class DataTableJsonController extends BaseController
                 __('msg.erro_exclusao_fk', ['1' =>  $this->name  , '2' => 'Model']):
                 __('msg.erro_bd');
         }
-        return response()->json(['erro' => isset($erro), 'msg' => $msg], 200);
+        return response()->json(['erro' => isset($erro), 'msg' => $msg , 'data' => null  ], 200);
     }
 
 
