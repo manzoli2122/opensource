@@ -194,8 +194,7 @@ class DataTableJsonController extends BaseController
 
 
 
-    public function destroy($id)
-    {
+    public function destroy($id){
         try {
             if(!$model = $this->model->findModelJson($id) ){
                 $msg = __('msg.erro_nao_encontrado', ['1' =>  $this->name ]);
