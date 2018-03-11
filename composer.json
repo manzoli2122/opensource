@@ -20,8 +20,8 @@
         "psr-4": {
             "Manzoli2122\\Pacotes\\": "src/Pacotes/"
         }
-    },
+    }
     
-    "minimum-stability": "dev"
+    
     
 }
