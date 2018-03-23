@@ -6,7 +6,7 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-
+use DataTables;
 use Exception ;
 
 class JsonController extends BaseController
@@ -20,8 +20,16 @@ class JsonController extends BaseController
 
 
     
-    public function index(){       
-        return response()->json( $this->model->findJson() , 200);
+    public function index(){  
+        try {
+            if(!$models = $this->model->findJson() ){
+               return response()->json( false , 500); 
+            }
+            return response()->json( $models , 200);
+        }
+        catch (Exception $ex) {
+            return response()->json( false , 500);
+        }        
     }
 
 
@@ -105,6 +113,27 @@ class JsonController extends BaseController
         return response()->json( $delete , 200 );
     }
 
+
+    
+    
+    
+    
+    /**
+    * Processa a requisição AJAX do DataTable na página de listagem.
+    * Mais informações em: http://datatables.yajrabox.com
+    *
+    * @return \Illuminate\Http\JsonResponse
+    */
+    public function getDatatable(){
+        $models = $this->model->getDatatable();
+        
+        return Datatables::of($models)
+            ->addColumn('action', function($linha) {
+                return '<button data-id="'.$linha->id.'" type="button" class="btn btn-danger  btn-xs btn-datatable" btn-excluir title="Excluir">                               <i class="fa fa-times"> </i> </button> '
+                     . '<button data-id="'.$linha->id.'" type="button" class="btn btn-success btn-xs btn-datatable" btn-editar  title="Editar"     style="margin-left: 10px;"> <i class="fa fa-pencil"></i> </button>'
+                     . '<button data-id="'.$linha->id.'" type="button" class="btn btn-primary btn-xs btn-datatable" btn-show    title="Visualizar" style="margin-left: 10px;"> <i class="fa fa-search"></i> </button>' ;
+            })->make(true);
+    }
 
 
 
