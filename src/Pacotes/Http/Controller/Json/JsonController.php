@@ -21,7 +21,7 @@ class JsonController extends BaseController
 
     
     public function index(){       
-        return response()->json( $this->model->all() , 200);
+        return response()->json( $this->model->findJson() , 200);
     }
 
 

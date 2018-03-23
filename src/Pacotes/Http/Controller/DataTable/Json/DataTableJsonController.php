@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use DataTables;
 use View;
 use Manzoli2122\Pacotes\Constants\ErrosSQL;
-
+use Log;
 class DataTableJsonController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
@@ -34,6 +34,7 @@ class DataTableJsonController extends BaseController
     */
     public function getDatatable(){
         $models = $this->model->getDatatable();
+        //Log::error($models );
         return Datatables::of($models)
             ->addColumn('action', function($linha) {
                 return '<button data-id="'.$linha->id.'" type="button" class="btn btn-danger  btn-xs btn-datatable" btn-excluir title="Excluir">                               <i class="fa fa-times"> </i> </button> '
